@@ -1,0 +1,60 @@
+
+Doing the django tutorial here.
+https://docs.djangoproject.com/en/1.7/intro/tutorial01/
+
+Path To Djangos templates. Copy these over then edit them  when need 
+to customized one fo the views. In part II the tutorial has you change
+a few things on the admin page 
+/usr/local/lib/python3.4/dist-packages/django/contrib/admin/templates/admin
+
+Commong patter for connectign pages to the main site:
+    Create an 'app' (did this with polls somewhere before tutorial03)
+    edit polls/views.py - add code to deliver tha page
+    edit polls/urls.py  - add a pattern to match for this page's index
+    edit mysite/urls.py - add a pattern that directs to the app (polls)
+
+At some point the connection to the root was broken (no longer shows
+the Django 'it worked' page) Note sure how to get back to that yet but
+it now gives a 404 error (except that debug is on)
+
+The polls page's view.py delivers the view for the app. The first 
+version just delivered some static text. This is about where the first 
+couple chapters of TDD were in their django app
+
+    def index(request):
+        return HttpResponse("Hello, world. You're at the polls index.")
+
+The next version links that with python variable values:
+
+    def index(request):
+        latest_question_list = Question.objects.order_by('-pub_date')[:5]
+        output = ', '.join([p.question_text for p in latest_question_list])
+        return HttpResponse(output)
+    
+But that means hardcoding a bunch of html in the python code. Django 
+uses a curley braced template system to put python variable into html.
+
+    def index(request):
+        latest_question_list = Question.objects.order_by('-pub_date')[:5]
+        template = loader.get_template('polls/index.html')
+        context = RequestContext(request, {
+            'latest_question_list': latest_question_list,
+        })
+        return HttpResponse(template.render(context))
+
+Since loading template, filling in a context and then returning a http
+respnse is such a common idiom, there's a shorcut:
+
+    def index(request):
+        latest_question_list = Question.objects.all().order_by('-pub_date')[:5]
+        context = {'latest_question_list': latest_question_list}
+        return render(request, 'polls/index.html', context)
+
+Also, with that last example just need to import render like the default
+view.py shows. Doing it with seperate load, context, render, response
+means you have to import all that too.
+
+At this point the index.html template (with all the {% python code %} 
+stuff gets replaces with html in the render() call and in this example
+the first poll question is delivered as a bullited list with a 
+link to the answers.

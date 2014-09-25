@@ -58,3 +58,39 @@ At this point the index.html template (with all the {% python code %}
 stuff gets replaces with html in the render() call and in this example
 the first poll question is delivered as a bullited list with a 
 link to the answers.
+
+last part of chapter 3  concerned with adding views and url resolution.
+Added a new function in polls/views.py for details. This is where the 
+each question in the list links to so it can show display the choices 
+for that question. The url pattern for the polls is:
+
+http://127.0.0.1:8000/polls/
+
+Clicking on one of the questions resolves to its question number (there's 
+only one in the database ATM) so the details are here:
+
+http://127.0.0.1:8000/polls/1/
+
+Also worked through an example of chnaging "1" to specifics_1 by adding
+a new pattern in urls.py [not sure, but it loosk like the last pattern 
+in the list gets the match overriding any previous, only one at a time]
+
+Finally showed hot to avoid hardcoding paths "polls/" in mysite/index.html
+by replacing
+    <a href="/polls/{{ question.id }}/">
+
+with
+    <a href="{% url 'detail' question.id %}">
+
+And then using the namespace operator in urls.py:
+
+    url(r'^polls/', include('polls.urls', namespace="polls"))
+    
+so index.html can use:
+    <a href="{% url 'polls:detail' question.id %}">    
+    
+Note "polls:" could be "foo:" if namespace="foo", nothing magic about use
+of 'polls' in these last two places.
+
+
+
